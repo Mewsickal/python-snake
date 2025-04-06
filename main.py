@@ -13,7 +13,7 @@ def draw_cell(canvas, x, y, color):
     return canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline=color)
 
 def update(canvas, snake, fruit):
-    coords = canvas.coords(snake)
+    coords = canvas.coords(snake[0])
     new_ycoord = 0
     new_xcoord = 0
     if direction == "up":
@@ -29,7 +29,18 @@ def update(canvas, snake, fruit):
         new_ycoord = coords[1]
         new_xcoord = 0 if coords[0] == cell_size * cell_count - cell_size else coords[0] + cell_size
 
-    canvas.coords(snake, new_xcoord, new_ycoord, new_xcoord + cell_size, new_ycoord + cell_size)
+
+    tail = snake.pop()
+    tail_coords = canvas.coords(tail)
+
+    if new_xcoord == canvas.coords(fruit)[0] and new_ycoord == canvas.coords(fruit)[1]:
+        fruit_x = random.randint(0, cell_count - 1) * cell_size
+        fruit_y = random.randint(0, cell_count - 1) * cell_size
+        canvas.coords(fruit, fruit_x, fruit_y, fruit_x + cell_size, fruit_y + cell_size)
+        snake.append(draw_cell(canvas, tail_coords[0], tail_coords[1], "green"))
+    
+    canvas.coords(tail, new_xcoord, new_ycoord, new_xcoord + cell_size, new_ycoord + cell_size)        
+    snake.insert(0, tail)
 
     canvas.after(300, lambda: update(canvas, snake, fruit))
 
@@ -52,7 +63,7 @@ def main():
     canvas = tk.Canvas(root, width=cell_size * cell_count, height=cell_size * cell_count, bg="pink")
     canvas.pack()
 
-    snake = draw_cell(canvas, 300, 300, "green")
+    snake = [draw_cell(canvas, 300, 300, "green")]
 
     fruit = draw_cell(canvas, random.randint(0, cell_count - 1) * cell_size, random.randint(0, cell_count - 1) * cell_size, "red")
 
